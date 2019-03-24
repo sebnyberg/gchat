@@ -2,9 +2,12 @@ package client
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/sebnyberg/gchat/pkg/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func NewMessage(username string, content string) *pb.ChatRequest {
@@ -16,11 +19,11 @@ func NewMessage(username string, content string) *pb.ChatRequest {
 	}
 }
 
-func RunClient() error {
+func RunClient() {
 	fmt.Println("Creating a new client...")
 	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
-		return err
+		log.Fatalf("Failed to connect to gRPC server")
 	}
 	defer cc.Close()
 
@@ -28,10 +31,36 @@ func RunClient() error {
 
 	// Try to join chat as "anonymous"
 	username := "anonymous"
-	err = connectToChat(c, username)
-	if err != nil {
-		return fmt.Errorf("Failed to connect to the server: %v", err)
+	if err := joinServer(c, username); err != nil {
+		handleJoinServerError(err)
 	}
 
-	return nil
+	// Join the chat
+	if err := chat(c, username); err != nil {
+		handleChatError(err)
+	}
+}
+
+func handleJoinServerError(err error) {
+	if statusErr, ok := status.FromError(err); ok {
+		if statusErr.Code() == codes.AlreadyExists {
+			fmt.Println("Failed to connect to the server, username is taken")
+		} else {
+			panic(fmt.Sprintf("Unexpected RPC error: %v", statusErr))
+		}
+	} else {
+		panic(fmt.Sprintf("Unexpected error: %v", err))
+	}
+}
+
+func handleChatError(err error) {
+	if statusErr, ok := status.FromError(err); ok {
+		if statusErr.Code() == codes.AlreadyExists {
+			fmt.Println("Failed to connect to the server, username is taken")
+		} else {
+			panic(fmt.Sprintf("Unexpected RPC error: %v", statusErr))
+		}
+	} else {
+		panic(fmt.Sprintf("Unexpected error: %v", err))
+	}
 }

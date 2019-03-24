@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/sebnyberg/gchat/pkg/client"
 	"github.com/spf13/cobra"
 )
@@ -36,10 +34,7 @@ var connectCmd = &cobra.Command{
 	Short: "connects to the chat server",
 	Long:  `Connects to the chat server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := client.RunClient()
-		if err != nil {
-			log.Fatalf("Failed to start server: %v", err)
-		}
+		client.RunClient()
 	},
 }
 

@@ -7,6 +7,8 @@ import (
 	"log"
 
 	"github.com/sebnyberg/gchat/pkg/pb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type server struct{}
@@ -23,36 +25,38 @@ var connectedResponse *pb.ChatResponse = &pb.ChatResponse{
 }
 
 var claimedUsernames map[string]bool = make(map[string]bool)
-var connectedUsers map[string]bool = make(map[string]bool)
+var activeUsers map[string]bool = make(map[string]bool)
 
-func (*server) ConnectToChat(ctx context.Context, req *pb.ConnectToChatRequest) (*pb.ConnectToChatResponse, error) {
+// Connect to the chat
+// Returns AlreadyExists error if username is taken and that user is already connected
+func (*server) JoinServer(ctx context.Context, req *pb.JoinServerRequest) (*pb.JoinServerResponse, error) {
 	requestedUsername := req.GetUsername()
-	log.Printf("Client requested to join chat with username %v", requestedUsername)
+	log.Printf("Client requested to join server as \"%v\"", requestedUsername)
 
 	// Check if the username is taken
 	if _, ok := claimedUsernames[requestedUsername]; ok {
 
 		// Check if claimed username is connected
-		if _, ok := connectedUsers[requestedUsername]; ok {
+		if _, ok := activeUsers[requestedUsername]; ok {
 			// Ask client to re-try with a different name
-			log.Printf("Username already taken: %v", requestedUsername)
-			return nil, fmt.Errorf("Failed to connect, username already taken: %v", requestedUsername)
+			log.Printf("Username already taken: \"%v\"", requestedUsername)
+			return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("Failed to join server, username already taken: \"%v\"", requestedUsername))
 		}
 
 		// User is reconnecting
-		response := &pb.ConnectToChatResponse{
-			Response: fmt.Sprintf("Welcome back %v\n", requestedUsername),
+		response := &pb.JoinServerResponse{
+			Response: fmt.Sprintf("Welcome back \"%v\"\n", requestedUsername),
 		}
 
 		return response, nil
 	}
 
 	// New client / username
-	log.Printf("Adding username %v to the list of claimed usernames\n", requestedUsername)
+	log.Printf("Adding username \"%v\" to list of claimed usernames\n", requestedUsername)
 	claimedUsernames[requestedUsername] = true
 
-	response := &pb.ConnectToChatResponse{
-		Response: fmt.Sprintf("Successfully claimed username %v\n", requestedUsername),
+	response := &pb.JoinServerResponse{
+		Response: fmt.Sprintf("Successfully joined server as \"%v\"\n", requestedUsername),
 	}
 
 	return response, nil

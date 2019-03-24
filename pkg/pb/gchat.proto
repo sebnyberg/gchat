@@ -4,10 +4,10 @@ package gchat;
 
 option go_package="pb";
 
-message ConnectToChatRequest {
+message JoinServerRequest {
   string username = 1;
 }
-message ConnectToChatResponse {
+message JoinServerResponse {
   string response = 1;
 }
 
@@ -24,6 +24,6 @@ message ChatResponse {
 
 
 service ChatService{
-  rpc ConnectToChat(ConnectToChatRequest) returns (ConnectToChatResponse) {};
+  rpc JoinServer(JoinServerRequest) returns (JoinServerResponse) {};
   rpc Chat(stream ChatRequest) returns (stream ChatResponse) {};
 }
