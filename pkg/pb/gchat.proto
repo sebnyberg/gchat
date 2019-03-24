@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package gchat;
+
+option go_package="pb";
+
+message ChatMessage {
+  string author = 1;
+  string content = 2;
+}
+
+message ChatRequest {
+  ChatMessage message = 1;
+}
+
+message ChatResponse {
+  ChatMessage message = 1;
+}
+
+service ChatService{
+  rpc Chat(stream ChatRequest) returns (stream ChatResponse) {};
+}
