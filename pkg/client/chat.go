@@ -1,10 +1,13 @@
 package client
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/sebnyberg/gchat/pkg/pb"
@@ -38,6 +41,7 @@ func chat(c pb.ChatServiceClient, username string) error {
 	}
 
 	waitc := make(chan struct{})
+
 	// Retrieve messages
 	go func() {
 		for {
@@ -58,15 +62,24 @@ func chat(c pb.ChatServiceClient, username string) error {
 
 	// Send messages
 	go func() {
-		msgs := []string{"Hello", "World", "Well this chat sucks... I'm out"}
-		for _, msg := range msgs {
-			err := stream.Send(NewMessage("Me", msg))
+
+		reader := bufio.NewReader(os.Stdin)
+		for {
+
+			text, err := reader.ReadString('\n')
+			text = strings.Replace(text, "\n", "", -1)
+			if err != nil {
+				break
+			}
+
+			err = stream.Send(NewMessage(username, text))
 			if err != nil {
 				log.Fatalf("Failed to send message to the Server: %v", err)
 				break
 			}
-			time.Sleep(2 * time.Second)
 		}
+
+		stream.CloseSend()
 		close(waitc)
 	}()
 

@@ -33,6 +33,7 @@ func RunClient() {
 	username := "anonymous"
 	if err := joinServer(c, username); err != nil {
 		handleJoinServerError(err)
+		return
 	}
 
 	// Join the chat

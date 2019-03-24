@@ -69,17 +69,40 @@ func (*server) Chat(stream pb.ChatService_ChatServer) error {
 
 	// Receive messages
 	go func() {
+		var user string
 		for {
-			msg, err := stream.Recv()
+			res, err := stream.Recv()
 			if err == io.EOF {
 				log.Printf("Client disconnected")
 				break
 			}
 			if err != nil {
-				log.Fatalf("Failed to receive message from client: %v", err)
+				log.Printf("Failed to receive message from client: %v", err)
 				break
 			}
-			log.Printf("Received message from client: %v\n", msg.GetMessage())
+			log.Printf("Broadcasting message to clients: %v\n", res.GetMessage())
+
+			content := res.GetMessage().GetContent()
+			user = res.GetMessage().GetUsername()
+
+			if _, claimed := claimedUsernames[user]; !claimed {
+				log.Println("Client not authenticated, please try again..")
+				activeUsers[user] = false
+				break
+			}
+
+			activeUsers[user] = true
+
+			stream.Send(&pb.ChatResponse{
+				Message: &pb.ChatMessage{
+					Username: user,
+					Content:  content,
+				},
+			})
+		}
+		if user != "" {
+			claimedUsernames[user] = false
+			activeUsers[user] = false
 		}
 		close(waitc)
 	}()
