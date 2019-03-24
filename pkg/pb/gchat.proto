@@ -4,19 +4,26 @@ package gchat;
 
 option go_package="pb";
 
-message ChatMessage {
-  string author = 1;
-  string content = 2;
+message ConnectToChatRequest {
+  string username = 1;
+}
+message ConnectToChatResponse {
+  string response = 1;
 }
 
+message ChatMessage {
+  string username = 1;
+  string content = 2;
+}
 message ChatRequest {
   ChatMessage message = 1;
 }
-
 message ChatResponse {
   ChatMessage message = 1;
 }
 
+
 service ChatService{
+  rpc ConnectToChat(ConnectToChatRequest) returns (ConnectToChatResponse) {};
   rpc Chat(stream ChatRequest) returns (stream ChatResponse) {};
 }

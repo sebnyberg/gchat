@@ -1,23 +1,23 @@
 package client
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/sebnyberg/gchat/pkg/pb"
 	"google.golang.org/grpc"
 )
 
-func NewMessage(author string, content string) *pb.ChatRequest {
+func NewMessage(username string, content string) *pb.ChatRequest {
 	return &pb.ChatRequest{
 		Message: &pb.ChatMessage{
-			Author:  author,
-			Content: content,
+			Username: username,
+			Content:  content,
 		},
 	}
 }
 
-func ConnectClient() error {
-	log.Println("Creating a new client...")
+func RunClient() error {
+	fmt.Println("Creating a new client...")
 	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		return err
@@ -26,7 +26,12 @@ func ConnectClient() error {
 
 	c := pb.NewChatServiceClient(cc)
 
-	joinChat(c)
+	// Try to join chat as "anonymous"
+	username := "anonymous"
+	err = connectToChat(c, username)
+	if err != nil {
+		return fmt.Errorf("Failed to connect to the server: %v", err)
+	}
 
 	return nil
 }

@@ -36,7 +36,7 @@ var connectCmd = &cobra.Command{
 	Short: "connects to the chat server",
 	Long:  `Connects to the chat server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := client.ConnectClient()
+		err := client.RunClient()
 		if err != nil {
 			log.Fatalf("Failed to start server: %v", err)
 		}

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-protoc pkg/pb/calculator.proto --go_out=plugins=grpc:.
+protoc pkg/pb/gchat.proto --go_out=plugins=grpc:.
