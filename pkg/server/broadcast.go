@@ -19,12 +19,13 @@ func NewBroadcast() Broadcast {
 		IsBroadcasting: true,
 	}
 
+	// Initiate broadcast
 	b.Start()
 
 	return b
 }
 
-// The Chatc is a common channel that stores all messages from the clients
+// GetChatc retrives a channel which is used to gather messages from clients
 func (b *Broadcast) GetChatc() chan *pb.ChatMessage {
 	return b.Chatc
 }
@@ -32,10 +33,11 @@ func (b *Broadcast) GetChatc() chan *pb.ChatMessage {
 // Subscribe registers a subscriber and returns a channel which can be
 // listened to for broadcasted messages
 func (b *Broadcast) Subscribe(subscriber string) chan *pb.ChatMessage {
-	log.Println("Adding client to list of subscribers")
-	// Make sure that broadcasting has started
+	log.Println("Subscribing client to messages from other clients")
+
+	// Make sure that broadcasting is enabled
 	if !b.IsBroadcasting {
-		log.Println("Currently not broadcasting, did you run broadcast.Start()?")
+		log.Println("Currently not broadcasting messages, did you run broadcast.Start()?")
 	}
 
 	s := make(chan *pb.ChatMessage)
@@ -47,7 +49,7 @@ func (b *Broadcast) Subscribe(subscriber string) chan *pb.ChatMessage {
 
 // Unsubscribe removes a subscriber from the broadcast
 func (b *Broadcast) Unsubscribe(subscriber string) {
-	log.Println("Removing subscriber from the broadcast")
+	log.Println("Unsubscribing client from broadcast")
 	// Check if subscriber exists
 	if _, ok := b.Subscribers[subscriber]; !ok {
 		log.Printf("Tried to unsubscribe a subscriber that did not exist: %v", subscriber)
@@ -57,7 +59,7 @@ func (b *Broadcast) Unsubscribe(subscriber string) {
 	delete(b.Subscribers, subscriber)
 }
 
-// Start broadcasting all messages that appear in the chatc subscriber channels
+// Start broadcasting messages from the chat channel (chatc) to all subscriber channels
 func (b *Broadcast) Start() {
 	go func() {
 		for msg := range b.Chatc {

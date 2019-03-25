@@ -20,7 +20,7 @@ func NewMessage(username string, content string) *pb.ChatSessionRequest {
 }
 
 func RunClient(username string) {
-	fmt.Println("Creating a new client...")
+	fmt.Println("Running client...")
 	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to connect to gRPC server")

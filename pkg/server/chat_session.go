@@ -19,20 +19,29 @@ func newChatServer() *server {
 	}
 }
 
-// Chat is a single open connection between the server and the client
-// All chat sessions share a common chat channel which is posted to whenever a new message
-// arrives from a client to the server.
-// Each chat session has its own listen channel which is used to broadcast messages to each client.
+// ChatSession is single chat session between the server and the client.
+// When a client sends a chat message to the server, it will be put in a common chat channel.
+// This message will then be put in each clients own listen channel, which is sent back to the client
 func (s *server) ChatSession(stream pb.ChatService_ChatSessionServer) error {
-	log.Println("Chat initialized for client")
+	log.Println("New client has connected")
 
+	// Say hello to the client
+	msg := &pb.ChatMessage{
+		Username: "Server",
+		Content:  "Welcome to the chat! Type a message and press enter to send a message.",
+	}
+	if err := stream.Send(&pb.ChatSessionResponse{Message: msg}); err != nil {
+		fmt.Printf("Failed to send welcome message to client: %v\n", err)
+	}
+
+	// Create blocking channel
 	waitc := make(chan struct{})
 
 	chatc := s.Broadcast.GetChatc()
 
-	// Create a unique id and subscribe with it
 	uuid := fmt.Sprintf("%v", uuid.New())
 
+	// Subscribe to messages from other clients
 	listenc := s.Broadcast.Subscribe(uuid)
 	defer s.Broadcast.Unsubscribe(uuid)
 
@@ -55,16 +64,17 @@ func (s *server) ChatSession(stream pb.ChatService_ChatSessionServer) error {
 		close(waitc)
 	}()
 
-	// Broadcast messages sent to the server to the client
-	for msg := range listenc {
-		go func(m *pb.ChatMessage) {
-			err := stream.Send(&pb.ChatSessionResponse{Message: m})
+	// Send broadcasted messages to the client
+	go func() {
+		for msg := range listenc {
+			err := stream.Send(&pb.ChatSessionResponse{Message: msg})
 			if err != nil {
 				log.Printf("Failed to send message to client: %v", err)
 			}
-		}(msg)
-	}
+		}
+	}()
 
+	// Block until client disconnects
 	<-waitc
 
 	return nil
