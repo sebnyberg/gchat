@@ -19,7 +19,7 @@ func NewMessage(username string, content string) *pb.ChatSessionRequest {
 	}
 }
 
-func RunClient(username string) {
+func StartClient(username string) {
 	fmt.Println("Running client...")
 	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {

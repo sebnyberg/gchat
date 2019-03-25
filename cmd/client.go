@@ -34,7 +34,7 @@ var connectCmd = &cobra.Command{
 	Short: "connects to the chat server",
 	Long:  `Connects to the chat server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		client.RunClient(username)
+		client.StartClient(username)
 	},
 }
 
