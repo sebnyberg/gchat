@@ -34,11 +34,17 @@ var connectCmd = &cobra.Command{
 	Short: "connects to the chat server",
 	Long:  `Connects to the chat server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		client.RunClient()
+		client.RunClient(username)
 	},
 }
 
+var username string
+
 func init() {
 	rootCmd.AddCommand(clientCmd)
+
+	connectCmd.Flags().StringVarP(&username, "username", "u", "", "Username (required)")
+	connectCmd.MarkFlagRequired("username")
+
 	clientCmd.AddCommand(connectCmd)
 }

@@ -17,7 +17,7 @@ func StartServer() error {
 
 	s := grpc.NewServer()
 
-	srv := NewChatServer()
+	srv := newChatServer()
 	pb.RegisterChatServiceServer(s, srv)
 
 	log.Println("Chat server up and listening for connections")

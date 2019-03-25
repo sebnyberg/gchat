@@ -4,26 +4,18 @@ package gchat;
 
 option go_package="pb";
 
-message JoinServerRequest {
-  string username = 1;
-}
-message JoinServerResponse {
-  string response = 1;
-}
-
 message ChatMessage {
   string username = 1;
   string content = 2;
 }
-message ChatRequest {
+message ChatSessionRequest {
   ChatMessage message = 1;
 }
-message ChatResponse {
+message ChatSessionResponse {
   ChatMessage message = 1;
 }
 
 
 service ChatService{
-  rpc JoinServer(JoinServerRequest) returns (JoinServerResponse) {};
-  rpc Chat(stream ChatRequest) returns (stream ChatResponse) {};
+  rpc ChatSession(stream ChatSessionRequest) returns (stream ChatSessionResponse) {};
 }
