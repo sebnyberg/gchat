@@ -36,10 +36,10 @@ You can connect with as many clients as you'd like.
 
 The app uses [Cobra](https://github.com/spf13/cobra) to provide CLI commands and flags - in this case simply the `--username` flag.
 
-The gRPC service is defined in `pkg/pb/gchat.proto`. To generate code for the service and message types, run:
+The gRPC service is defined in `pkg/pb/gchat.proto`. To generate code for the service you will need `protoc` installed:
 
 ```bash
-bash generate.sh
+protoc pkg/pb/gchat.proto --go_out=plugins=grpc:.
 ```
 
 The service consists of a single bi-directional stream that expects a stream of `ChatSessionRequest` to go from the client to the server, and a stream of `ChatSessionResponse` to be sent back from the server to the client. Each request and response contains a message with an author and content.
