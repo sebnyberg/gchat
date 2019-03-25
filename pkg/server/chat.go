@@ -40,7 +40,6 @@ func (s *server) ChatSession(stream pb.ChatService_ChatSessionServer) error {
 	go func() {
 		for {
 			res, err := stream.Recv()
-			log.Printf("Receieved message: %v", res)
 			if err == io.EOF {
 				log.Println("Client requested to disconnect from the server")
 				break
