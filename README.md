@@ -12,25 +12,26 @@ git clone https://www.github.com/sebnyberg/gchat.git
 cd gchat
 ```
 
-Build the binary
+Run the server
 
 ```bash
-go build -o gchat
+go run main.go server start
 ```
 
-Start a server with:
+Connect as a client and start chatting. You can join as many users in different terminals:
 
 ```bash
-gchat server start
+go run main.go client connect --username bob
 ```
 
-Connect as a client and start chatting with:
+Another option is to install the service and run the binary directly:
 
 ```bash
-gchat client connect --username bob
-```
+go install
 
-You can connect with as many clients as you'd like.
+# $GOPATH/bin has to be in your path for this to work
+gchat --help
+```
 
 ## Structure
 
